@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
@@ -62,7 +63,7 @@ func (m *UserModel) Authenticate(username, password string) (int, error) {
 
 	err := m.Collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return 0, ErrInvalidCredentials
 		}
 		return 0, err
@@ -74,7 +75,7 @@ func (m *UserModel) Authenticate(username, password string) (int, error) {
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		if err == bcrypt.ErrMismatchedHashAndPassword {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return 0, ErrInvalidCredentials
 		}
 		return 0, err
@@ -93,7 +94,7 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 	err := m.Collection.FindOne(context.Background(), filter).Err()
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return false, nil
 		}
 		return false, err
