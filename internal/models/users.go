@@ -3,10 +3,11 @@ package models
 import (
 	"context"
 	"errors"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type UserModelInterface interface {
@@ -101,4 +102,58 @@ func (m *UserModel) Exists(id int) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (m *UserModel) Get(id int) (User, error) {
+	filter := bson.D{{"id", id}}
+
+	var user User
+
+	err := m.Collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return User{}, ErrNoUserFound
+		}
+		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	// First, retrieve the current user details to get the hashed password
+	var user bson.M
+	filter := bson.D{{"id", id}}
+	err := m.Collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrNoUserFound
+		}
+		return err
+	}
+
+	hashedPassword, ok := user["hashed_password"].(string)
+	if !ok {
+		return ErrInvalidCredentials
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(currentPassword))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return ErrInvalidCredentials
+		}
+		return err
+	}
+
+	newHashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
+	if err != nil {
+		return err
+	}
+
+	update := bson.D{{"$set", bson.D{{"hashed_password", newHashedPassword}}}}
+	_, err = m.Collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
