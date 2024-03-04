@@ -18,7 +18,7 @@ type UserModelInterface interface {
 
 type User struct {
 	ID             int
-	username       string
+	Username       string
 	HashedPassword []byte
 	Created        time.Time
 }
@@ -53,4 +53,51 @@ func (m *UserModel) Insert(username, password string) error {
 		return err
 	}
 	return nil
+}
+
+func (m *UserModel) Authenticate(username, password string) (int, error) {
+	filter := bson.D{{"username", username}}
+
+	var user bson.M
+
+	err := m.Collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return 0, ErrInvalidCredentials
+		}
+		return 0, err
+	}
+
+	hashedPassword, ok := user["hashed_password"].(string)
+	if !ok {
+		return 0, ErrInvalidCredentials
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return 0, ErrInvalidCredentials
+		}
+		return 0, err
+	}
+
+	id, ok := user["id"].(int)
+	if !ok {
+		return 0, ErrInvalidCredentials
+	}
+
+	return id, nil
+}
+
+func (m *UserModel) Exists(id int) (bool, error) {
+	filter := bson.D{{"id", id}}
+
+	err := m.Collection.FindOne(context.Background(), filter).Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }

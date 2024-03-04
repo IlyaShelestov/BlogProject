@@ -2,13 +2,6 @@ package main
 
 import (
 	"blog_project/internal/models"
-	"log/slog"
-)
-
-<<<<<<< HEAD
-
-import (
-	"blog_project/internal/models"
 	"html/template"
 	"log/slog"
 )
