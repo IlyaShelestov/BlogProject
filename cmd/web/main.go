@@ -4,6 +4,8 @@ import (
 	"blog_project/internal/models"
 	"context"
 	"flag"
+	"github.com/alexedwards/scs/v2"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,13 +18,13 @@ import (
 )
 
 type application struct {
-	debug  bool
-	logger *slog.Logger
-	blocks models.BlockModelInterface
-	users  models.UserModelInterface
-	// templateCache  map[string]*template.Template
-	formDecoder *form.Decoder
-	// sessionManager *scs.SessionManager
+	debug          bool
+	logger         *slog.Logger
+	blocks         models.BlockModelInterface
+	users          models.UserModelInterface
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
