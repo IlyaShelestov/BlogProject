@@ -1,0 +1,28 @@
+{{define "title"}}Login{{end}}
+
+{{define "main"}}
+<h1 class="fw-bold text-center">Log In</h1>
+        <form
+          action="/login"
+          method="POST"
+          class="d-flex flex-column justify-content-center align-items-center"
+        >
+        <div class="d-flex flex-column align-items-end">
+            <label for="#username"
+            >Username: <input id="username" name="username" type="text" required
+          /></label>
+          <label class="mt-3" for="#password"
+            >Password: <input id="password" name="password" type="password" required
+          /></label>
+        </div>
+           {{with .Form.FieldErrors.password}}
+          <div class="bg-danger border rounded p-1 mt-3">
+            Wrong Password or Username!
+          </div>
+          {{end}}
+          <div class="d-flex align-items-center">
+            <input class="mt-3 p-2" type="submit" value="Log In" />
+            <a class="ms-5 pt-3" href="/signup">Sign Up</a>
+          </div>
+        </form>
+{{end}}

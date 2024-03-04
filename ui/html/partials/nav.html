@@ -1,0 +1,21 @@
+{{define "nav"}}
+<header class="border-bottom border-2 border-primary-subtle">
+  <div class="container">
+    <nav class="navbar navbar-expand">
+      <h2>MyBlog</h2>
+      <div class="navbar-nav ms-auto">
+          <a class="nav-link fs-5 me-3" href="/" aria-current="page">Home</a>
+          {{if .IsAuthenticated}}
+            <a class="nav-link fs-5 me-3" href="/blog">Blog</a>
+            {{if .isAdmin}}
+              <a class="nav-link fs-5 me-3" href="/admin"><i>Admin</i></a>
+            {{end}}
+            <a class="nav-link fs-5 me-3" href="/profile">Profile</a>
+          {{else}}
+            <a class="nav-link fs-5 me-3" href="/login">Log In</a>
+          {{end}}
+      </div>
+    </nav>
+  </div>
+</header>
+{{end}}

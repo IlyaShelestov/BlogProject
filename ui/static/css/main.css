@@ -1,0 +1,105 @@
+:root {
+  --main-color: #eef5ff;
+  --second-color: #7fc7d9;
+  --block-color: #aad7d9c0;
+  --border-color: #40a2d8;
+  --block-color-deleted: #ff8080;
+}
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--main-color);
+}
+
+.card {
+  width: 300px;
+  height: 450px;
+}
+
+.carousel-item img {
+  width: 300px;
+  height: 300px;
+}
+
+.card-header {
+  height: 300px;
+  padding: 0;
+}
+
+#language_en {
+  width: 16px;
+  height: 16px;
+}
+
+#language_ru {
+  width: 20px;
+  height: 20px;
+}
+
+header,
+footer {
+  background-color: var(--second-color);
+}
+
+.block {
+  width: 100%;
+  height: 270px;
+  background-color: var(--block-color);
+}
+
+.block-large {
+  width: 100%;
+  min-height: 65vh;
+  background-color: var(--block-color);
+}
+
+#input-text {
+  width: 60%;
+  min-width: 300px;
+  height: 40px;
+  background-color: var(--block-color);
+}
+
+#input-submit {
+  width: 100px;
+  height: 40px;
+  background-color: var(--second-color);
+  transition: 0.2s;
+}
+
+.btn {
+  background-color: var(--second-color);
+  border-radius: 20px;
+  border-width: 2px;
+  border-color: var(--border-color) !important;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background-color: var(--block-color);
+  color: var(--border-color) !important;
+}
+
+#input-submit:hover {
+  background-color: var(--block-color);
+  color: var(--border-color) !important;
+}
+
+.blue-border {
+  border-color: var(--border-color) !important;
+}
+
+.bg-block {
+  background-color: var(--block-color);
+}
+
+.bg-deleted {
+  background-color: var(--block-color-deleted);
+}
