@@ -4,12 +4,13 @@ import (
 	"blog_project/internal/models"
 	"context"
 	"flag"
-	"github.com/alexedwards/scs/v2"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/alexedwards/scs/v2"
 
 	"github.com/go-playground/form"
 	"go.mongodb.org/mongo-driver/bson"
