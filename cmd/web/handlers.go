@@ -12,7 +12,9 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "home.tmpl")
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+	app.render(w, r, http.StatusOK, "home.tmpl", data)
 }
 
 func (app *application) blocksView(w http.ResponseWriter, r *http.Request) {
@@ -222,4 +224,10 @@ func (app *application) userProfilePost(w http.ResponseWriter, r *http.Request) 
 	}
 	app.sessionManager.Put(r.Context(), "flash", "Your password has been updated!")
 	http.Redirect(w, r, "/profile", http.StatusSeeOther)
+}
+
+func (app *application) admin(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+	app.render(w, r, http.StatusOK, "admin.tmpl", data)
 }
