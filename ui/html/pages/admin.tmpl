@@ -1,15 +1,51 @@
 {{define "title"}}Admin{{end}}
 
 {{define "main"}}
-<div class="text-center">
-  <h1 class="display-3 fw-bold mb-1">About</h1>
-  <p>
-    This project serves as the final assignment for the
-    <strong>Advanced Programming 1</strong> course at
-    <strong>Astana IT University</strong>.
-  </p>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti voluptas, quidem ipsum suscipit earum quo? Possimus maiores, porro eligendi impedit et ea nemo fugiat autem animi facere maxime harum saepe!
-  </p>
-</div>
+      <div class="text-center">
+        <h1 class="display-3 fw-bold mb-1">Admin</h1>
+        <div class="row">
+          <div class="col-4 border p-2">
+            <h4 class="text-center fw-bold">Create</h4>
+            <form class="d-flex flex-column align-items-center" method="POST" action="/admin">
+              <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+              <input type="hidden" name="_method" value="CREATE">
+              <div class="d-flex flex-column align-items-end">
+                <label>Title: <input class="mb-1" type="text" name="title" required></label>
+                <label>Description: <input class="mb-1" type="text" name="description" required></label>
+                <label>Image URL(1): <input class="mb-1" type="text" name="image_1" required></label>
+                <label>Image URL(2): <input class="mb-1" type="text" name="image_2" required></label>
+                <label>Image URL(3): <input class="mb-1" type="text" name="image_3" required></label>
+              </div>
+              <input type="submit" value="Create" class="btn text-light fw-bold w-75">
+            </form>
+          </div>
+          <div class="col-4 border p-2">
+            <h4 class="text-center fw-bold">Update</h4>
+            <form class="d-flex flex-column align-items-center" method="POST" action="/admin">
+              <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+              <input type="hidden" name="_method" value="UPDATE">
+              <div class="d-flex flex-column align-items-end">
+                <label>Id: <input class="mb-1" type="number" name="id" min="0" required></label>
+                <label>Title: <input class="mb-1" type="text" name="title"></label>
+                <label>Description: <input class="mb-1" type="text" name="description"></label>
+                <label>Image URL(1): <input class="mb-1" type="text" name="image_1"></label>
+                <label>Image URL(2): <input class="mb-1" type="text" name="image_2"></label>
+                <label>Image URL(3): <input class="mb-1" type="text" name="image_3"></label>
+              </div>
+              <input type="submit" value="Update" class="btn text-light fw-bold w-75">
+            </form>
+          </div>
+          <div class="col-4 border p-2">
+            <h4 class="text-center fw-bold">Delete</h4>
+            <form class="d-flex flex-column align-items-center" method="POST" action="/admin">
+              <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+              <input type="hidden" name="_method" value="DELETE">
+              <div class="d-flex flex-column align-items-end">
+                <label>Id: <input class="mb-1" type="number" name="id" min="0" required></label>
+              </div>
+              <input type="submit" value="Delete" class="btn text-light fw-bold w-75">
+            </form>
+          </div>
+        </div>
+      </div>
 {{end}}

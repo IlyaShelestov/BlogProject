@@ -2,10 +2,12 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type BlockModelInterface interface {
@@ -42,7 +44,27 @@ func (m *BlockModel) GetAll() ([]Block, error) {
 }
 
 func (m *BlockModel) Insert(title, description, imageURL1, imageURL2, imageURL3 string) error {
+	ctx := context.Background()
+
+	var result bson.M
+	opts := options.FindOne().SetSort(bson.D{{Key: "id", Value: -1}})
+	err := m.Collection.FindOne(ctx, bson.D{}, opts).Decode(&result)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+
+	fmt.Println(result)
+
+	var nextID int = 0
+	if result != nil {
+		currentMaxID := int(result["id"].(int32))
+		nextID = currentMaxID + 1
+	}
+
+	fmt.Println(nextID)
+
 	block := bson.M{
+		"id":           nextID,
 		"created_time": time.Now(),
 		"image_url_1":  imageURL1,
 		"image_url_2":  imageURL2,
@@ -51,7 +73,7 @@ func (m *BlockModel) Insert(title, description, imageURL1, imageURL2, imageURL3 
 		"title":        title,
 	}
 
-	_, err := m.Collection.InsertOne(context.Background(), block)
+	_, err = m.Collection.InsertOne(ctx, block)
 	return err
 }
 

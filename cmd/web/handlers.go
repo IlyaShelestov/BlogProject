@@ -231,3 +231,49 @@ func (app *application) admin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	app.render(w, r, http.StatusOK, "admin.tmpl", data)
 }
+
+type blockForm struct {
+	Action              string `form:"_method"`
+	Title               string `form:"title"`
+	Description         string `form:"description"`
+	ImageURL1           string `form:"image_1"`
+	ImageURL2           string `form:"image_2"`
+	ImageURL3           string `form:"image_3"`
+	ID                  int    `form:"id"`
+	validator.Validator `form:"-"`
+}
+
+func (app *application) adminPost(w http.ResponseWriter, r *http.Request) {
+	var form blockForm
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	switch form.Action {
+	case "CREATE":
+		err := app.blocks.Insert(form.Title, form.Description, form.ImageURL1, form.ImageURL2, form.ImageURL3)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+		app.sessionManager.Put(r.Context(), "flash", "Block successfully created!")
+	case "UPDATE":
+		err := app.blocks.Update(form.ID, form.Title, form.Description, form.ImageURL1, form.ImageURL2, form.ImageURL3)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+		app.sessionManager.Put(r.Context(), "flash", "Block successfully updated!")
+	case "DELETE":
+		err := app.blocks.Delete(form.ID)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+		app.sessionManager.Put(r.Context(), "flash", "Block successfully deleted!")
+	}
+
+	http.Redirect(w, r, "/admin", http.StatusSeeOther)
+}
