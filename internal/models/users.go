@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,6 +17,7 @@ type UserModelInterface interface {
 	Exists(id int) (bool, error)
 	Get(id int) (User, error)
 	PasswordUpdate(id int, currentPassword, newPassword string) error
+	ExistsByUsername(username string) (bool, error)
 }
 
 type User struct {
@@ -31,12 +33,19 @@ type UserModel struct {
 }
 
 func (m *UserModel) Insert(username, password string) error {
+	lastID, err := m.getLastID()
+	if err != nil {
+		return err
+	}
+
+	newId := lastID + 1
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
 	}
 
 	user := bson.M{
+		"id":              newId,
 		"username":        username,
 		"hashed_password": hashedPassword,
 		"created":         time.Now(),
@@ -100,6 +109,20 @@ func (m *UserModel) Exists(id int) (bool, error) {
 	return true, nil
 }
 
+func (m *UserModel) ExistsByUsername(username string) (bool, error) {
+	filter := bson.D{{Key: "username", Value: username}}
+
+	err := m.Collection.FindOne(context.Background(), filter).Err()
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (m *UserModel) Get(id int) (User, error) {
 	filter := bson.D{{Key: "id", Value: id}}
 
@@ -151,4 +174,22 @@ func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) 
 	}
 
 	return nil
+}
+
+func (m *UserModel) getLastID() (int32, error) {
+	opts := options.FindOne().SetSort(bson.D{{"id", -1}})
+	filter := bson.D{}
+	var user bson.M
+	err := m.Collection.FindOne(context.Background(), filter, opts).Decode(&user)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return 0, nil // No documents found, start with ID 1
+		}
+		return 0, err
+	}
+	lastID, ok := user["id"].(int32)
+	if !ok {
+		return 0, errors.New("last ID is not of type int32")
+	}
+	return lastID, nil
 }

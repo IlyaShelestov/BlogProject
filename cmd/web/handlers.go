@@ -34,7 +34,6 @@ type userSignupForm struct {
 }
 
 func (app *application) userSignUp(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "signin.tmpl")
 	data := app.newTemplateData(r)
 	data.Form = userSignupForm{}
 	app.render(w, r, http.StatusOK, "signup.tmpl", data)
@@ -54,6 +53,19 @@ func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
 
 	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
+		return
+	}
+
+	exists, err := app.users.ExistsByUsername(form.UserName)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	if exists {
+		form.AddFieldError("username", "Username is already in use")
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
@@ -136,7 +148,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, path, http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
