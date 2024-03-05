@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/mongodbstore"
 	"github.com/alexedwards/scs/v2"
 
 	"github.com/go-playground/form"
@@ -55,31 +56,32 @@ func main() {
 		os.Exit(1)
 	}
 
-	usersCollection := client.Database("BlogProject").Collection("users")
-	blocksCollection := client.Database("BlogProject").Collection("blocks")
+	db := client.Database("BlogProject")
+	usersCollection := db.Collection("users")
+	blocksCollection := db.Collection("blocks")
 
 	logger.Info("Pinged your deployment. You successfully connected to MongoDB!")
 
-	// templateCache, err := newTemplateCache()
-	// if err != nil {
-	// 	logger.Error(err.Error())
-	// 	os.Exit(1)
-	// }
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
 
 	formDecoder := form.NewDecoder()
 
-	// sessionManager := scs.New()
-	// sessionManager.Store = mysqlstore.New(db)
-	// sessionManager.Lifetime = 12 * time.Hour
-	// sessionManager.Cookie.Secure = true
+	sessionManager := scs.New()
+	sessionManager.Store = mongodbstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
 
 	app := &application{
-		logger: logger,
-		blocks: &models.BlockModel{Collection: blocksCollection},
-		users:  &models.UserModel{Collection: usersCollection},
-		// templateCache:  templateCache,
-		formDecoder: formDecoder,
-		// sessionManager: sessionManager,
+		logger:         logger,
+		blocks:         &models.BlockModel{Collection: blocksCollection},
+		users:          &models.UserModel{Collection: usersCollection},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	// tlsConfig := &tls.Config{
