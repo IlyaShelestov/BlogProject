@@ -36,9 +36,9 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/profile", protected.ThenFunc(app.userProfile))
 	router.Handler(http.MethodPost, "/profile", protected.ThenFunc(app.userProfilePost))
 
-	// admin := dynamic.Append(app.requireAdmin) |||||||||||||||||||||||| WE SHOULD MAKE IT
+	admin := protected.Append(app.requireAdmin)
 
-	// router.Handler(http.MethodGet, "/admin", admin.ThenFunc(app.admin)) |||||||||||||||||||||||| OPEN ADMIN PAGE
+	router.Handler(http.MethodGet, "/admin", admin.ThenFunc(app.admin))
 	// router.Handler(http.MethodPost, "/admin", admin.ThenFunc(app.adminPost)) |||||||||||||||||||||||| UPDATE OR DELETE BLOCK
 
 	standart := alice.New(app.recoverPanic, app.logRequest, secureHeaders)

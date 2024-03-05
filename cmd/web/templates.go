@@ -16,6 +16,7 @@ type templateData struct {
 	Form            any
 	Flash           string
 	IsAuthenticated bool
+	IsAdmin         bool
 	CSRFToken       string
 	User            models.User
 }

@@ -61,6 +61,19 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
+func (app *application) requireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.isAdmin(r) {
+			http.Redirect(w, r, "/blog", http.StatusSeeOther)
+			return
+		}
+
+		w.Header().Add("Cache-Control", "no-store")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetBaseCookie(http.Cookie{
@@ -88,6 +101,17 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		if exists {
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
+		isAdmin, err := app.users.IsAdmin(id)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		if isAdmin {
+			ctx := context.WithValue(r.Context(), isAdminContextKey, true)
 			r = r.WithContext(ctx)
 		}
 

@@ -229,6 +229,5 @@ func (app *application) userProfilePost(w http.ResponseWriter, r *http.Request) 
 
 func (app *application) admin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-	data.Form = userSignupForm{}
 	app.render(w, r, http.StatusOK, "admin.tmpl", data)
 }

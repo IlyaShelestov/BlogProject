@@ -18,6 +18,7 @@ type UserModelInterface interface {
 	Get(id int) (User, error)
 	PasswordUpdate(id int, currentPassword, newPassword string) error
 	ExistsByUsername(username string) (bool, error)
+	IsAdmin(id int) (bool, error)
 }
 
 type User struct {
@@ -178,13 +179,13 @@ func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) 
 }
 
 func (m *UserModel) getLastID() (int32, error) {
-	opts := options.FindOne().SetSort(bson.D{{"id", -1}})
+	opts := options.FindOne().SetSort(bson.D{{Key: "id", Value: -1}})
 	filter := bson.D{}
 	var user bson.M
 	err := m.Collection.FindOne(context.Background(), filter, opts).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return 0, nil // No documents found, start with ID 1
+			return 0, nil
 		}
 		return 0, err
 	}
@@ -193,4 +194,25 @@ func (m *UserModel) getLastID() (int32, error) {
 		return 0, errors.New("last ID is not of type int32")
 	}
 	return lastID, nil
+}
+
+func (m *UserModel) IsAdmin(id int) (bool, error) {
+	filter := bson.D{{Key: "id", Value: id}}
+
+	var user bson.M
+
+	err := m.Collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, ErrNoUserFound
+		}
+		return false, err
+	}
+
+	isAdmin, ok := user["isAdmin"].(bool)
+	if !ok {
+		return false, ErrNoUserFound
+	}
+
+	return isAdmin, nil
 }
