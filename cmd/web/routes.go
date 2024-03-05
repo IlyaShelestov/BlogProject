@@ -33,8 +33,8 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/blog", protected.ThenFunc(app.blocksView))
 	router.Handler(http.MethodPost, "/logout", protected.ThenFunc(app.userLogoutPost))
-	// router.Handler(http.MethodGet, "/profile", protected.ThenFunc(app.userProfile)) |||||||||||||||||||||||| OPEN PROFILE
-	// router.Handler(http.MethodPost, "/profile", protected.ThenFunc(app.userProfilePost)) |||||||||||||||||||||||| DELETE PASSWORD HERE
+	router.Handler(http.MethodGet, "/profile", protected.ThenFunc(app.userProfile))
+	router.Handler(http.MethodPost, "/profile", protected.ThenFunc(app.userProfilePost))
 
 	// admin := dynamic.Append(app.requireAdmin) |||||||||||||||||||||||| WE SHOULD MAKE IT
 
