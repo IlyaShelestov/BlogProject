@@ -21,5 +21,9 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
 
+	// protected := dynamic.Append(app.requireAuthentication)
+
+	router.Handler(http.MethodGet, "/blog", dynamic.ThenFunc(app.blocksView))
+
 	return router
 }

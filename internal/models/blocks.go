@@ -62,14 +62,14 @@ func (m *BlockModel) Insert(title, description, imageURL1, imageURL2, imageURL3 
 }
 
 func (m *BlockModel) Update(id int, title, description, imageURL1, imageURL2, imageURL3 string) error {
-	filter := bson.D{{"id", id}}
+	filter := bson.D{{Key: "id", Value: id}}
 	update := bson.D{
-		{"$set", bson.D{
-			{"title", title},
-			{"description", description},
-			{"image_url_1", imageURL1},
-			{"image_url_2", imageURL2},
-			{"image_url_3", imageURL3},
+		{Key: "$set", Value: bson.D{
+			{Key: "title", Value: title},
+			{Key: "description", Value: description},
+			{Key: "image_url_1", Value: imageURL1},
+			{Key: "image_url_2", Value: imageURL2},
+			{Key: "image_url_3", Value: imageURL3},
 		}},
 	}
 
@@ -78,7 +78,7 @@ func (m *BlockModel) Update(id int, title, description, imageURL1, imageURL2, im
 }
 
 func (m *BlockModel) Delete(id int) error {
-	filter := bson.D{{"id", id}}
+	filter := bson.D{{Key: "id", Value: id}}
 	_, err := m.Collection.DeleteOne(context.Background(), filter)
 	return err
 }

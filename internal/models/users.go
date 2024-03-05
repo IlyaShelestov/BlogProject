@@ -58,7 +58,7 @@ func (m *UserModel) Insert(username, password string) error {
 }
 
 func (m *UserModel) Authenticate(username, password string) (int, error) {
-	filter := bson.D{{"username", username}}
+	filter := bson.D{{Key: "username", Value: username}}
 
 	var user bson.M
 
@@ -91,7 +91,7 @@ func (m *UserModel) Authenticate(username, password string) (int, error) {
 }
 
 func (m *UserModel) Exists(id int) (bool, error) {
-	filter := bson.D{{"id", id}}
+	filter := bson.D{{Key: "id", Value: id}}
 
 	err := m.Collection.FindOne(context.Background(), filter).Err()
 	if err != nil {
@@ -105,7 +105,7 @@ func (m *UserModel) Exists(id int) (bool, error) {
 }
 
 func (m *UserModel) Get(id int) (User, error) {
-	filter := bson.D{{"id", id}}
+	filter := bson.D{{Key: "id", Value: id}}
 
 	var user User
 
@@ -121,9 +121,8 @@ func (m *UserModel) Get(id int) (User, error) {
 }
 
 func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
-	// First, retrieve the current user details to get the hashed password
 	var user bson.M
-	filter := bson.D{{"id", id}}
+	filter := bson.D{{Key: "id", Value: id}}
 	err := m.Collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -149,7 +148,7 @@ func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) 
 		return err
 	}
 
-	update := bson.D{{"$set", bson.D{{"hashed_password", newHashedPassword}}}}
+	update := bson.D{{Key: "$set", Value: bson.D{{Key: "hashed_password", Value: newHashedPassword}}}}
 	_, err = m.Collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return err
