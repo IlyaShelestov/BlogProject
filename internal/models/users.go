@@ -165,11 +165,12 @@ func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) 
 	}
 
 	newHashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
+	newPassword = string(newHashedPassword)
 	if err != nil {
 		return err
 	}
 
-	update := bson.D{{Key: "$set", Value: bson.D{{Key: "hashed_password", Value: newHashedPassword}}}}
+	update := bson.D{{Key: "$set", Value: bson.D{{Key: "hashed_password", Value: newPassword}}}}
 	_, err = m.Collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return err
