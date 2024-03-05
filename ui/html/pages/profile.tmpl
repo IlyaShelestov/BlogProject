@@ -2,7 +2,25 @@
 
 {{define "main"}}
 <div class="border d-flex justify-content-around align-items-center mt-3">
-  <h1><span class="fw-bold">Username: </span><%= username %></h1>
-  <a href="/logout"><button class="btn text-light fw-bold">Log out</button></a>
+  <h1><span class="fw-bold">Username: </span>{{.User.Username}}</h1>
+  <form action="/logout" method="post">
+    <a href="/logout"><button class="btn text-light fw-bold">Log out</button></a>
+  </form>
 </div>
+
+<form action="/profile" method="post" class="mt-3">
+  <div class="mb-3">
+    <label for="currentPassword" class="form-label">Current Password</label>
+    <input type="password" class="form-control" id="currentPassword" name="currentPassword">
+  </div>
+  <div class="mb-3">
+    <label for="newPassword" class="form-label">New Password</label>
+    <input type="password" class="form-control" id="newPassword" name="newPassword">
+  </div>
+  <div class="mb-3">
+    <label for="newPasswordConfirmation" class="form-label">Confirm New Password</label>
+    <input type="password" class="form-control" id="newPasswordConfirmation" name="newPasswordConfirmation">
+  </div>
+  <button type="submit" class="btn btn-primary">Update Password</button>
+</form>
 {{end}}

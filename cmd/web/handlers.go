@@ -172,12 +172,13 @@ func (app *application) userProfile(w http.ResponseWriter, r *http.Request) {
 	user, err := app.users.Get(userID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
-			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 		} else {
 			app.serverError(w, r, err)
 		}
 		return
 	}
+
 	data := app.newTemplateData(r)
 	data.User = user
 
