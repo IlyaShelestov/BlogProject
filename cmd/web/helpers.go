@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/go-playground/form"
-	"github.com/justinas/nosurf"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/go-playground/form"
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -75,8 +76,7 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
-		CurrentYear: time.Now().Year(),
-		// Add the flash message to the template data, if one exists.
+		CurrentYear:     time.Now().Year(),
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
 		CSRFToken:       nosurf.Token(r),

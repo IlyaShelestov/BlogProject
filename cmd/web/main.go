@@ -3,6 +3,7 @@ package main
 import (
 	"blog_project/internal/models"
 	"context"
+	"crypto/tls"
 	"flag"
 	"html/template"
 	"log/slog"
@@ -38,29 +39,32 @@ func main() {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI("mongodb+srv://shelestov2905:p0cbZHri5qle3S6H@cluster0.qn3unxy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").SetServerAPIOptions(serverAPI)
 
-	client, err := mongo.Connect(context.TODO(), opts)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
 	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
+		if err = client.Disconnect(ctx); err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)
 		}
 	}()
 
-	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
+	if err := client.Database("admin").RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Err(); err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
+	logger.Info("Pinged your deployment. You successfully connected to MongoDB!")
+
 	db := client.Database("BlogProject")
 	usersCollection := db.Collection("users")
 	blocksCollection := db.Collection("blocks")
-
-	logger.Info("Pinged your deployment. You successfully connected to MongoDB!")
 
 	templateCache, err := newTemplateCache()
 	if err != nil {
@@ -84,15 +88,15 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
-	// tlsConfig := &tls.Config{
-	// 	CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
-	// }
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
 
 	srv := &http.Server{
-		Addr:     *addr,
-		Handler:  app.routes(),
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
-		// TLSConfig:    tlsConfig,
+		Addr:         *addr,
+		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig:    tlsConfig,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -100,8 +104,7 @@ func main() {
 
 	logger.Info("starting server", "addr", *addr)
 
-	// err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	logger.Error(err.Error())
 	os.Exit(1)
 }
