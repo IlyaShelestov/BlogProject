@@ -17,7 +17,7 @@ type BlockModelInterface interface {
 
 type Block struct {
 	ID          int       `bson:"id"`
-	CreatedTime time.Time `bson:"created_time"`
+	Created     time.Time `bson:"created_time"`
 	ImageURL1   string    `bson:"image_url_1"`
 	ImageURL2   string    `bson:"image_url_2"`
 	ImageURL3   string    `bson:"image_url_3"`
@@ -27,12 +27,6 @@ type Block struct {
 
 type BlockModel struct {
 	Collection *mongo.Collection
-}
-
-func NewBlockModel(database *mongo.Database) *BlockModel {
-	return &BlockModel{
-		Collection: database.Collection("blocks"),
-	}
 }
 
 func (m *BlockModel) GetAll() ([]Block, error) {

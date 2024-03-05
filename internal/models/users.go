@@ -29,12 +29,6 @@ type UserModel struct {
 	Collection *mongo.Collection
 }
 
-func NewUserModel(database *mongo.Database) *UserModel {
-	return &UserModel{
-		Collection: database.Collection("users"),
-	}
-}
-
 func (m *UserModel) Insert(username, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
