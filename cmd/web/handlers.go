@@ -41,15 +41,13 @@ func (app *application) userSignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	var form userSignupForm
+
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-
-	var form userSignupForm
-	form.UserName = r.PostForm.Get("username")
-	form.Password = r.PostForm.Get("password")
 
 	form.CheckField(validator.NotBlank(form.UserName), "username", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")

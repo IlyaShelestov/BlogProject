@@ -23,6 +23,7 @@ type User struct {
 	Username       string
 	HashedPassword []byte
 	Created        time.Time
+	IsAdmin        bool
 }
 
 type UserModel struct {
@@ -39,6 +40,7 @@ func (m *UserModel) Insert(username, password string) error {
 		"username":        username,
 		"hashed_password": hashedPassword,
 		"created":         time.Now(),
+		"isAdmin":         false,
 	}
 
 	_, err = m.Collection.InsertOne(context.Background(), user)
