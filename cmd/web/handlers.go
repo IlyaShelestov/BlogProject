@@ -28,12 +28,10 @@ func (app *application) blocksView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userSignUp(w http.ResponseWriter, r *http.Request) {
-	// Render the sign-up form template
 	app.render(w, r, http.StatusOK, "signin.tmpl")
 }
 
 func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
-	// Parse the form data
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -70,7 +68,7 @@ func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
 
-	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
