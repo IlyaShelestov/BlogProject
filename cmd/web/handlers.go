@@ -181,6 +181,7 @@ func (app *application) userProfile(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.User = user
+	data.Form = accountPasswordUpdateForm{}
 
 	app.render(w, r, http.StatusOK, "profile.tmpl", data)
 }
@@ -205,19 +206,41 @@ func (app *application) userProfilePost(w http.ResponseWriter, r *http.Request) 
 	form.CheckField(validator.NotBlank(form.NewPasswordConfirmation), "newPasswordConfirmation", "This field cannot be blank")
 	form.CheckField(form.NewPassword == form.NewPasswordConfirmation, "newPasswordConfirmation", "Passwords do not match")
 	if !form.Valid() {
+		userID := app.sessionManager.Get(r.Context(), "authenticatedUserID").(int)
+		user, err := app.users.Get(userID)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			} else {
+				app.serverError(w, r, err)
+			}
+			return
+		}
 		data := app.newTemplateData(r)
+		data.User = user
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity, "password.tmpl", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "profile.tmpl", data)
 		return
 	}
 	userID := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
 	err = app.users.PasswordUpdate(userID, form.CurrentPassword, form.NewPassword)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
+			userID := app.sessionManager.Get(r.Context(), "authenticatedUserID").(int)
+			user, err := app.users.Get(userID)
+			if err != nil {
+				if errors.Is(err, models.ErrNoRecord) {
+					http.Redirect(w, r, "/login", http.StatusSeeOther)
+				} else {
+					app.serverError(w, r, err)
+				}
+				return
+			}
 			form.AddFieldError("currentPassword", "Current password is incorrect")
 			data := app.newTemplateData(r)
+			data.User = user
 			data.Form = form
-			app.render(w, r, http.StatusUnprocessableEntity, "password.tmpl", data)
+			app.render(w, r, http.StatusUnprocessableEntity, "profile.tmpl", data)
 		} else {
 			app.serverError(w, r, err)
 		}
