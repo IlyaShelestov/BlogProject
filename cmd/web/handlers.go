@@ -27,8 +27,16 @@ func (app *application) blocksView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "blog.tmpl", data)
 }
 
+type userSignupForm struct {
+	UserName            string `form:"username"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
 func (app *application) userSignUp(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "signin.tmpl")
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+	app.render(w, r, http.StatusOK, "signup.tmpl", data)
 }
 
 func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
@@ -71,24 +79,31 @@ func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
+type userLoginForm struct {
+	UserName            string `form:"username"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userLoginForm{}
-	app.render(w, r, http.StatusOK, "login.tmpl")
+	app.render(w, r, http.StatusOK, "login.tmpl", data)
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	var form userLoginForm
+
+	err := app.decodePostForm(r, &form)
+
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	var form userLoginForm
-	username := r.PostForm.Get("username")
-	password := r.PostForm.Get("password")
 
 	form.CheckField(validator.NotBlank(form.UserName), "email", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+
 	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
@@ -96,7 +111,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := app.users.Authenticate(username, password)
+	id, err := app.users.Authenticate(form.UserName, form.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
 			form.AddNonFieldError("Username or password is incorrect")
@@ -137,15 +152,4 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-type userSignupForm struct {
-	UserName            string `form:"username"`
-	Password            string `form:"password"`
-	validator.Validator `form:"-"`
-}
-type userLoginForm struct {
-	UserName            string `form:"username"`
-	Password            string `form:"password"`
-	validator.Validator `form:"-"`
 }
