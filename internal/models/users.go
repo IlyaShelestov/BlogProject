@@ -3,11 +3,11 @@ package models
 import (
 	"context"
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,7 +23,7 @@ type UserModelInterface interface {
 type User struct {
 	ID             int
 	Username       string
-	HashedPassword []byte
+	HashedPassword string
 	Created        time.Time
 	IsAdmin        bool
 }
@@ -39,10 +39,12 @@ func (m *UserModel) Insert(username, password string) error {
 	}
 
 	newId := lastID + 1
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+
+	hashedPasswordBytes, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
 	}
+	hashedPassword := string(hashedPasswordBytes)
 
 	user := bson.M{
 		"id":              newId,
@@ -79,7 +81,9 @@ func (m *UserModel) Authenticate(username, password string) (int, error) {
 	if !ok {
 		return 0, ErrInvalidCredentials
 	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return 0, ErrInvalidCredentials
@@ -87,10 +91,7 @@ func (m *UserModel) Authenticate(username, password string) (int, error) {
 		return 0, err
 	}
 
-	id, ok := user["id"].(int)
-	if !ok {
-		return 0, ErrInvalidCredentials
-	}
+	id := int(user["id"].(int32))
 
 	return id, nil
 }

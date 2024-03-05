@@ -12,16 +12,19 @@
             <label for="#username"
             >Username: <input id="username" value="{{.Form.UserName}}" name="username" type="text"
           /></label>
-              {{with .Form.FieldErrors.Username}}
+              {{with .Form.FieldErrors.username}}
                 <label class="bg-danger border rounded p-1 mt-3">{{.}}</label>
               {{end}}
           <label class="mt-3" for="#password"
             >Password: <input id="password" name="password" type="password"
           /></label>
+          {{with .Form.FieldErrors.password}}
+            <label class="bg-danger border rounded p-1 mt-3">{{.}}</label>
+          {{end}}
         </div>
-           {{with .Form.FieldErrors}}
+           {{with .Form.NonFieldErrors}}
           <div class="bg-danger border rounded p-1 mt-3">
-            Wrong Password or Username!
+            {{.}}
           </div>
           {{end}}
           <div class="d-flex align-items-center">

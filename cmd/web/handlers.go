@@ -12,7 +12,8 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, http.StatusOK, "home.tmpl")
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "home.tmpl", data)
 }
 
 func (app *application) blocksView(w http.ResponseWriter, r *http.Request) {
@@ -112,7 +113,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form.CheckField(validator.NotBlank(form.UserName), "email", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.UserName), "username", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
 
 	if !form.Valid() {
