@@ -37,5 +37,7 @@ func (app *application) routes() http.Handler {
 	// router.Handler(http.MethodGet, "/admin", admin.ThenFunc(app.admin)) |||||||||||||||||||||||| OPEN ADMIN PAGE
 	// router.Handler(http.MethodPost, "/admin", admin.ThenFunc(app.adminPost)) |||||||||||||||||||||||| UPDATE OR DELETE BLOCK
 
-	return router
+	standart := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+
+	return standart.Then(router)
 }

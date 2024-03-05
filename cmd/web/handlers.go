@@ -28,12 +28,10 @@ func (app *application) blocksView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userSignUp(w http.ResponseWriter, r *http.Request) {
-	// Render the sign-up form template
 	app.render(w, r, http.StatusOK, "signin.tmpl")
 }
 
 func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
-	// Parse the form data
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -74,6 +72,8 @@ func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = userLoginForm{}
 	app.render(w, r, http.StatusOK, "login.tmpl")
 }
 
@@ -140,7 +140,7 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 }
 
 type userSignupForm struct {
-	UserName            string `form:"name"`
+	UserName            string `form:"username"`
 	Password            string `form:"password"`
 	validator.Validator `form:"-"`
 }
