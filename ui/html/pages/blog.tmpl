@@ -9,13 +9,13 @@
         <div id="carousel{{.ID}}" class="carousel slide w-100 h-100">
           <div class="carousel-inner w-100 h-100">
             <div class="carousel-item active">
-              <img src="{{.Image_1}}" class="object-fit-cover" alt="image_1">
+              <img src="{{.ImageURL1}}" class="object-fit-cover" alt="image_1">
             </div>
             <div class="carousel-item">
-              <img src="{{.Image_2}}" class="object-fit-cover" alt="image_2">
+              <img src="{{.ImageURL2}}" class="object-fit-cover" alt="image_2">
             </div>
             <div class="carousel-item">
-              <img src="{{.Image_3}}" class="object-fit-cover" alt="image_3">
+              <img src="{{.ImageURL3}}" class="object-fit-cover" alt="image_3">
             </div>
           </div>
           <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{.ID}}" data-bs-slide="prev">
@@ -30,6 +30,7 @@
       </div>
         <div class="card-body overflow-auto">
           <h5 class="card-title text-center">{{.Title}}</h5>
+          <h6 class="card-title text-center">{{humanDate .Created}}</h6>
           <p class="card-text">{{.Description}}</p>
         </div>
     </div>
