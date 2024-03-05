@@ -20,10 +20,22 @@ func (app *application) routes() http.Handler {
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/login", dynamic.ThenFunc(app.userLogin))
+	router.Handler(http.MethodPost, "/login", dynamic.ThenFunc(app.userLoginPost))
+	router.Handler(http.MethodGet, "/signup", dynamic.ThenFunc(app.userSignUp))
+	router.Handler(http.MethodPost, "/signup", dynamic.ThenFunc(app.userSignUpPost))
 
-	// protected := dynamic.Append(app.requireAuthentication)
+	protected := dynamic.Append(app.requireAuthentication)
 
-	router.Handler(http.MethodGet, "/blog", dynamic.ThenFunc(app.blocksView))
+	router.Handler(http.MethodGet, "/blog", protected.ThenFunc(app.blocksView))
+	router.Handler(http.MethodPost, "/logout", protected.ThenFunc(app.userLogoutPost))
+	// router.Handler(http.MethodGet, "/profile", protected.ThenFunc(app.userProfile)) |||||||||||||||||||||||| OPEN PROFILE
+	// router.Handler(http.MethodPost, "/profile", protected.ThenFunc(app.userProfilePost)) |||||||||||||||||||||||| DELETE PASSWORD HERE
+
+	// admin := dynamic.Append(app.requireAdmin) |||||||||||||||||||||||| WE SHOULD MAKE IT
+
+	// router.Handler(http.MethodGet, "/admin", admin.ThenFunc(app.admin)) |||||||||||||||||||||||| OPEN ADMIN PAGE
+	// router.Handler(http.MethodPost, "/admin", admin.ThenFunc(app.adminPost)) |||||||||||||||||||||||| UPDATE OR DELETE BLOCK
 
 	return router
 }
